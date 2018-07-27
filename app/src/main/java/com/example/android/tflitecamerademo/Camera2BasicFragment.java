@@ -54,6 +54,7 @@ import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 import java.io.IOException;
@@ -82,6 +83,7 @@ public class Camera2BasicFragment extends Fragment
   private boolean runClassifier = false;
   private boolean checkedPermissions = false;
   private TextView textView;
+  private Button button;
   private ImageClassifier classifier;
 
   /** Max preview width that is guaranteed by Camera2 API */
@@ -287,8 +289,23 @@ public class Camera2BasicFragment extends Fragment
   /** Connect the buttons to their event handler. */
   @Override
   public void onViewCreated(final View view, Bundle savedInstanceState) {
+    final Boolean[] a = {false};
     textureView = (AutoFitTextureView) view.findViewById(R.id.texture);
     textView = (TextView) view.findViewById(R.id.text);
+    button = (Button) view.findViewById(R.id.button);
+
+    button.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        if (!a[0]) {
+          startBackgroundThread();
+          a[0] = true;
+        } else {
+          stopBackgroundThread();
+          a[0] = false;
+        }
+      }
+    });
   }
 
   /** Load the model and labels. */
@@ -300,13 +317,13 @@ public class Camera2BasicFragment extends Fragment
     } catch (IOException e) {
       Log.e(TAG, "Failed to initialize an image classifier.");
     }
-    startBackgroundThread();
+    startBackgroundThread(); //
   }
 
   @Override
   public void onResume() {
     super.onResume();
-    startBackgroundThread();
+    startBackgroundThread();//
 
     // When the screen is turned off and turned back on, the SurfaceTexture is already
     // available, and "onSurfaceTextureAvailable" will not be called. In that case, we can open
@@ -662,7 +679,7 @@ public class Camera2BasicFragment extends Fragment
         textureView.getBitmap(ImageClassifier.DIM_IMG_SIZE_X, ImageClassifier.DIM_IMG_SIZE_Y);
     String textToShow = classifier.classifyFrame(bitmap);
     bitmap.recycle();
-    showToast(textToShow);
+    showToast(textToShow); //
   }
 
   /** Compares two {@code Size}s based on their areas. */
